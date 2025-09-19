@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bot Hosting Clone</title>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React + ReactDOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-router-dom@6/umd/react-router-dom.development.js"></script>
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.35.0/dist/supabase.min.js"></script>
+</head>
+<body class="bg-gray-100">
+<div id="root"></div>
+
+<script type="text/javascript">
+  const { useState, useEffect } = React;
+  const { BrowserRouter, Routes, Route, Link, useNavigate } = ReactRouterDOM;
+
+  // --- Supabase Client ---
+  const SUPABASE_URL = "YOUR_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+  const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // --- Sidebar ---
+  function Sidebar({ user, onLogout }) {
+    return (
+      <aside className="w-64 bg-gray-900 text-white min-h-screen p-6">
+        <h1 className="text-2xl font-bold mb-4">Bot Hosting</h1>
+        {user && <p className="mb-6 text-sm">Halo, {user.email}</p>}
+        <nav className="space-y-4">
+          {!user && <Link to="/login" className="block p-2 rounded hover:bg-gray-700">🔑 Login</Link>}
+          {!user && <Link to="/register" className="block p-2 rounded hover:bg-gray-700">📝 Register</Link>}
+          {user && <button onClick={onLogout} className="block p-2 rounded hover:bg-gray-700 w-full text-left">🚪 Logout</button>}
+        </nav>
+      </aside>
+    );
+  }
+
+  // --- Login ---
+  function Login({ setUser }) {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+
+    const handleLogin = async (e) => {
+      e.preventDefault();
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) alert(error.message);
+      else {
+        setUser(data.user);
+        alert("Login berhasil!");
+        navigate("/");
+      }
+    };
+
+    return (
+      <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-4">Login</h2>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-2 border rounded" required/>
+          <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full p-2 border rounded" required/>
+          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Login</button>
+        </form>
+      </div>
+    );
+  }
+
+  // --- Register ---
+  function Register() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+
+    const handleRegister = async (e) => {
+      e.preventDefault();
+      const { user, error } = await supabase.auth.signUp({ email, password });
+      if (error) alert(error.message);
+      else {
+        alert("Registrasi sukses! Cek email untuk verifikasi.");
+        navigate("/login");
+      }
+    };
+
+    return (
+      <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-4">Register</h2>
+        <form onSubmit={handleRegister} className="space-y-4">
+          <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-2 border rounded" required/>
+          <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full p-2 border rounded" required/>
+          <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Register</button>
+        </form>
+      </div>
+    );
+  }
+
+  // --- VPS Dashboard ---
+  const vpsData = [
+    { name: "VPS Ekonomi", ram: "16GB", priceUSD: 96 },
+    { name: "VPS Premium", ram: "32GB", priceUSD: 192 },
+    { name: "VPS Pro", ram: "64GB", priceUSD: 384 },
+  ];
+
+  function VPSDashboard() {
+    const usdToIdr = usd => usd * 18000;
+    return (
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold mb-6">Daftar VPS</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {vpsData.map((vps, index) => (
+            <div key={index} className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
+              <h3 className="text-xl font-semibold mb-2">{vps.name}</h3>
+              <p>RAM: {vps.ram}</p>
+              <p>Harga: ${vps.priceUSD}/bulan (~Rp {usdToIdr(vps.priceUSD).toLocaleString()})</p>
+              <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Order</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // --- App ---
+  function App() {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+      supabase.auth.getSession().then(({ data }) => setUser(data.session?.user || null));
+      supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user || null));
+    }, []);
+
+    const handleLogout = async () => {
+      await supabase.auth.signOut();
+      setUser(null);
+      alert("Logout berhasil!");
+    };
+
+    return (
+      <BrowserRouter>
+        <div className="flex min-h-screen">
+          <Sidebar user={user} onLogout={handleLogout}/>
+          <main className="flex-1 p-10">
+            <Routes>
+              <Route path="/login" element={<Login setUser={setUser}/>} />
+              <Route path="/register" element={<Register/>} />
+              <Route path="/" element={user ? <VPSDashboard /> : <div>Silakan login untuk melihat VPS</div>} />
+            </Routes>
+          </main>
+        </div>
+      </BrowserRouter>
+    );
+  }
+
+  // --- Render ---
+  ReactDOM.createRoot(document.getElementById("root")).render(
+    React.createElement(App)
+  );
+</script>
+</body>
+</html>
