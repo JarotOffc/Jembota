@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Oscar Store - Topup QRIS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
   <style>
-    /* Animasi pulse */
     @keyframes pulse {0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(34,197,94,0); }100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34,197,94,0); }}
     .pulse { animation: pulse 2s infinite; }
   </style>
@@ -16,13 +14,13 @@
 <body class="bg-gray-900 text-white font-sans flex">
 
   <!-- SIDEBAR -->
-  <aside id="sidebar" class="w-64 bg-gray-800 min-h-screen p-6 hidden md:block">
+  <aside class="w-64 bg-gray-800 min-h-screen p-6">
     <h1 class="text-xl font-bold mb-6">Oscar Store</h1>
     <nav class="space-y-3">
-      <button onclick="showSection('login')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600">Login</button>
-      <button onclick="showSection('register')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600">Register</button>
-      <button onclick="showSection('topup')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600">Topup</button>
-      <button onclick="logout()" class="w-full text-left px-3 py-2 bg-red-600 rounded hover:bg-red-500" id="logoutBtn" style="display:none">Logout</button>
+      <button onclick="showSection('login')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600" id="btnLogin">Login</button>
+      <button onclick="showSection('register')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600" id="btnRegister">Register</button>
+      <button onclick="showSection('topup')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600" id="btnTopup">Topup</button>
+      <button onclick="logout()" class="w-full text-left px-3 py-2 bg-red-600 rounded hover:bg-red-500" id="btnLogout" style="display:none">Logout</button>
     </nav>
   </aside>
 
@@ -81,18 +79,18 @@
   </footer>
 
   <script>
-    // ----- Supabase Setup -----
+    // Supabase Setup
     const SUPABASE_URL = "https://YOUR_SUPABASE_URL.supabase.co";
     const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ----- Sidebar Navigation -----
+    // Sidebar Navigation
     function showSection(id) {
       document.querySelectorAll("main > section").forEach(sec => sec.classList.add("hidden"));
       document.getElementById(id).classList.remove("hidden");
     }
 
-    // ----- AUTH -----
+    // Auth
     async function register(e) {
       e.preventDefault();
       const email = document.getElementById("regEmail").value;
@@ -110,23 +108,25 @@
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return alert(error.message);
       alert("Login berhasil!");
+      document.getElementById("btnLogout").style.display = "block";
       showSection("topup");
-      document.getElementById("logoutBtn").style.display = "block";
-      loadRiwayat(); // load riwayat jika ada
+      loadRiwayat();
     }
 
     async function logout() {
       await supabase.auth.signOut();
       alert("Logout berhasil!");
+      document.getElementById("btnLogout").style.display = "none";
       showSection("login");
-      document.getElementById("logoutBtn").style.display = "none";
     }
 
-    // ----- TOPUP -----
+    // Topup
     let topupAmount = 0;
 
-    function handleTopup(e) {
+    async function handleTopup(e) {
       e.preventDefault();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return alert("Silahkan login terlebih dahulu!");
       topupAmount = document.getElementById("topupAmount").value;
       if (!topupAmount || topupAmount <= 0) return alert("Jumlah tidak valid!");
       document.getElementById("qrisModal").classList.remove("hidden");
@@ -135,49 +135,47 @@
     function closeQris() { document.getElementById("qrisModal").classList.add("hidden"); }
 
     async function confirmPayment() {
-      const user = supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return alert("User tidak ditemukan!");
       const adminNumber = "6285850539404";
       const message = `Halo Admin, saya baru saja melakukan pembayaran topup sebesar Rp${topupAmount}.`;
       const waUrl = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
 
-      // Simpan transaksi di localStorage (atau bisa di Supabase table nanti)
-      saveRiwayat(topupAmount, "Pending");
-
+      // Simpan riwayat di Supabase
+      const { error } = await supabase.from('topup').insert([{ user_id: user.id, amount: topupAmount, status: 'Pending', created_at: new Date() }]);
+      if (error) console.error(error);
+      
       window.open(waUrl, "_blank"); 
       closeQris();
-      setTimeout(() => location.reload(), 2000);
+      setTimeout(() => loadRiwayat(), 2000);
     }
 
-    function saveRiwayat(amount, status) {
-      let riwayat = JSON.parse(localStorage.getItem("riwayatTopup")) || [];
-      const tanggal = new Date().toLocaleString();
-      riwayat.push({ id: Date.now(), jumlah: amount, waktu: tanggal, status: status });
-      localStorage.setItem("riwayatTopup", JSON.stringify(riwayat));
-      loadRiwayat();
-    }
-
-    function loadRiwayat() {
-      let riwayat = JSON.parse(localStorage.getItem("riwayatTopup")) || [];
+    // Load riwayat dari Supabase
+    async function loadRiwayat() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: riwayat, error } = await supabase.from('topup').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (error) console.error(error);
       const list = document.getElementById("riwayatList");
       list.innerHTML = "";
-      if (riwayat.length > 0) {
-        document.getElementById("riwayat").classList.remove("hidden");
-        riwayat.forEach(r => {
-          const li = document.createElement("li");
-          li.className = "bg-gray-800 p-3 rounded";
-          let statusColor = r.status === "Berhasil" ? "text-green-400" : "text-yellow-400";
-          li.innerHTML = `
-            <p>Topup Rp${r.jumlah}</p>
-            <p class="text-sm text-gray-400">${r.waktu}</p>
-            <p class="text-sm ${statusColor} font-semibold">Status: ${r.status}</p>
-          `;
-          list.appendChild(li);
-        });
-      }
+      if (riwayat.length > 0) document.getElementById("riwayat").classList.remove("hidden");
+      riwayat.forEach(r => {
+        const li = document.createElement("li");
+        li.className = "bg-gray-800 p-3 rounded";
+        const statusColor = r.status === "Berhasil" ? "text-green-400" : "text-yellow-400";
+        li.innerHTML = `<p>Topup Rp${r.amount}</p><p class="text-sm text-gray-400">${new Date(r.created_at).toLocaleString()}</p><p class="text-sm ${statusColor} font-semibold">Status: ${r.status}</p>`;
+        list.appendChild(li);
+      });
     }
 
-    // Auto set pending -> berhasil saat reload
-    window.onload = function() { loadRiwayat(); }
+    window.onload = async function() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        document.getElementById("btnLogout").style.display = "block";
+        showSection("topup");
+        loadRiwayat();
+      } else showSection("login");
+    }
   </script>
 </body>
 </html>
