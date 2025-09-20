@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OSCAR HOSTING - VPS PREMIUM</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html {
+      scroll-behavior: smooth; /* biar scroll halus */
+    }
+  </style>
   <script>
     // Dark mode toggle
     function toggleDarkMode() {
@@ -18,11 +23,9 @@
       const isOpen = !sidebar.classList.contains('-translate-x-full');
 
       if (isOpen) {
-        // Tutup sidebar
         sidebar.classList.add('-translate-x-full');
         overlay.classList.add('hidden');
       } else {
-        // Buka sidebar
         sidebar.classList.remove('-translate-x-full');
         overlay.classList.remove('hidden');
       }
@@ -79,7 +82,8 @@
 
     <!-- Paket VPS -->
     <main id="paket" class="max-w-6xl mx-auto px-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <!-- Contoh 1 paket (lanjutkan copy untuk semua plan) -->
+
+      <!-- Paket Cards -->
       <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
         <h2 class="text-xl font-bold">Basic Plan</h2>
         <p class="text-blue-600 font-semibold">Rp15.000 / bulan</p>
@@ -94,6 +98,97 @@
           🛒 Order
         </a>
       </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Standard Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp25.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 2 GB RAM</li>
+          <li>⚙️ 1 Core CPU</li>
+          <li>💾 50 GB SSD</li>
+          <li>🌐 2 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Standard%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Pro Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp35.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 4 GB RAM</li>
+          <li>⚙️ 2 Cores CPU</li>
+          <li>💾 75 GB SSD</li>
+          <li>🌐 3 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Pro%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Elite Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp60.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 8 GB RAM</li>
+          <li>⚙️ 4 Cores CPU</li>
+          <li>💾 100 GB SSD</li>
+          <li>🌐 4 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Elite%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Ultra Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp75.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 16 GB RAM</li>
+          <li>⚙️ 4 Cores CPU</li>
+          <li>💾 150 GB SSD</li>
+          <li>🌐 5 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Ultra%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Premium Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp130.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 16 GB RAM</li>
+          <li>⚙️ 8 Cores CPU</li>
+          <li>💾 200 GB SSD</li>
+          <li>🌐 6 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Premium%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Enterprise Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp170.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 32 GB RAM</li>
+          <li>⚙️ 8 Cores CPU</li>
+          <li>💾 300 GB SSD</li>
+          <li>🌐 8 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Enterprise%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
     </main>
 
     <!-- Order Section -->
