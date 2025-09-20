@@ -3,178 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Oscar Store - Topup QRIS</title>
+  <title>OSCAR HOSTING - VPS PREMIUM</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-  <style>
-    @keyframes pulse {0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34,197,94,0.7);} 70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(34,197,94,0);} 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34,197,94,0);}}
-    .pulse { animation: pulse 2s infinite; }
-  </style>
-</head>
-<body class="bg-gray-900 text-white font-sans flex">
-
-  <!-- SIDEBAR -->
-  <aside class="w-64 bg-gray-800 min-h-screen p-6">
-    <h1 class="text-xl font-bold mb-6">Oscar Store</h1>
-    <nav class="space-y-3">
-      <button onclick="showSection('login')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600" id="btnLogin">Login</button>
-      <button onclick="showSection('register')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600" id="btnRegister">Register</button>
-      <button onclick="showSection('topup')" class="w-full text-left px-3 py-2 bg-gray-700 rounded hover:bg-gray-600" id="btnTopup">Topup</button>
-      <button onclick="logout()" class="w-full text-left px-3 py-2 bg-red-600 rounded hover:bg-red-500" id="btnLogout" style="display:none">Logout</button>
-    </nav>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="flex-1 p-6">
-    <!-- LOGIN -->
-    <section id="login" class="max-w-md mx-auto">
-      <h2 class="text-2xl font-bold mb-4">Login</h2>
-      <form onsubmit="login(event)" class="bg-gray-800 p-4 rounded space-y-3">
-        <input type="email" id="loginEmail" placeholder="Email" class="p-2 rounded text-black w-full" required>
-        <input type="password" id="loginPassword" placeholder="Password" class="p-2 rounded text-black w-full" required>
-        <button type="submit" class="bg-green-600 px-4 py-2 rounded w-full">Login</button>
-      </form>
-    </section>
-
-    <!-- REGISTER -->
-    <section id="register" class="max-w-md mx-auto hidden">
-      <h2 class="text-2xl font-bold mb-4">Register</h2>
-      <form onsubmit="register(event)" class="bg-gray-800 p-4 rounded space-y-3">
-        <input type="email" id="regEmail" placeholder="Email" class="p-2 rounded text-black w-full" required>
-        <input type="password" id="regPassword" placeholder="Password" class="p-2 rounded text-black w-full" required>
-        <button type="submit" class="bg-blue-600 px-4 py-2 rounded w-full">Register</button>
-      </form>
-    </section>
-
-    <!-- TOPUP -->
-    <section id="topup" class="max-w-md mx-auto hidden">
-      <h2 class="text-2xl font-bold mb-4">Topup Saldo</h2>
-      <form onsubmit="handleTopup(event)" class="bg-gray-800 p-4 rounded space-y-3">
-        <input id="topupAmount" type="number" placeholder="Masukkan jumlah topup" class="p-2 rounded text-black w-full" required>
-        <button type="submit" class="bg-green-600 px-4 py-2 rounded w-full">Topup</button>
-      </form>
-
-      <section id="riwayat" class="mt-8 hidden">
-        <h3 class="text-xl font-semibold mb-3">Riwayat Transaksi</h3>
-        <ul id="riwayatList" class="space-y-2"></ul>
-      </section>
-
-      <!-- QRIS MODAL -->
-      <div id="qrisModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center">
-        <div class="bg-gray-800 p-6 rounded w-96 text-center">
-          <div class="bg-red-600 text-white p-2 rounded mb-4 text-sm font-semibold flex items-center justify-center">
-            ❗ Wajib upload bukti transaksi agar valid
-          </div>
-          <h3 class="text-lg font-bold mb-4">Silakan Scan QRIS untuk Membayar</h3>
-          <img src="https://qu.ax/rxZsZ.jpg" alt="QRIS Code" class="mx-auto mb-4 border-4 border-white rounded">
-          <button onclick="confirmPayment()" class="bg-blue-600 px-4 py-2 rounded w-full">Konfirmasi Pembayaran</button>
-          <button onclick="closeQris()" class="mt-3 text-sm text-gray-400">Tutup</button>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="bg-gray-800 text-center p-6 mt-10 w-full">
-    <p class="text-gray-400 text-sm">© 2025 Oscar Store.</p>
-  </footer>
-
   <script>
-    // Supabase Setup
-    const SUPABASE_URL = "https://YOUR_SUPABASE_URL.supabase.co";
-    const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Sidebar Navigation
-    function showSection(id) {
-      document.querySelectorAll("main > section").forEach(sec => sec.classList.add("hidden"));
-      document.getElementById(id).classList.remove("hidden");
+    // Dark mode toggle
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
     }
 
-    // Auth Functions
-    async function register(e) {
-      e.preventDefault();
-      const email = document.getElementById("regEmail").value;
-      const password = document.getElementById("regPassword").value;
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) return alert(error.message);
-      alert("Berhasil daftar! Silahkan cek email untuk konfirmasi.");
-      showSection("login");
-    }
-
-    async function login(e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return alert(error.message);
-      alert("Login berhasil!");
-      document.getElementById("btnLogout").style.display = "block";
-      showSection("topup");
-      loadRiwayat();
-    }
-
-    async function logout() {
-      await supabase.auth.signOut();
-      alert("Logout berhasil!");
-      document.getElementById("btnLogout").style.display = "none";
-      showSection("login");
-    }
-
-    // Topup
-    let topupAmount = 0;
-
-    async function handleTopup(e) {
-      e.preventDefault();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return alert("Silahkan login terlebih dahulu!");
-      topupAmount = document.getElementById("topupAmount").value;
-      if (!topupAmount || topupAmount <= 0) return alert("Jumlah tidak valid!");
-      document.getElementById("qrisModal").classList.remove("hidden");
-    }
-
-    function closeQris() { document.getElementById("qrisModal").classList.add("hidden"); }
-
-    async function confirmPayment() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return alert("User tidak ditemukan!");
-      const adminNumber = "6285850539404";
-      const message = `Halo Admin, saya baru saja melakukan pembayaran topup sebesar Rp${topupAmount}.`;
-      const waUrl = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
-
-      // Simpan riwayat di Supabase
-      const { error } = await supabase.from('topup').insert([{ user_id: user.id, amount: topupAmount, status: 'Pending', created_at: new Date() }]);
-      if (error) console.error(error);
-      
-      window.open(waUrl, "_blank"); 
-      closeQris();
-      setTimeout(() => loadRiwayat(), 2000);
-    }
-
-    async function loadRiwayat() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: riwayat, error } = await supabase.from('topup').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-      if (error) console.error(error);
-      const list = document.getElementById("riwayatList");
-      list.innerHTML = "";
-      if (riwayat.length > 0) document.getElementById("riwayat").classList.remove("hidden");
-      riwayat.forEach(r => {
-        const li = document.createElement("li");
-        li.className = "bg-gray-800 p-3 rounded";
-        const statusColor = r.status === "Berhasil" ? "text-green-400" : "text-yellow-400";
-        li.innerHTML = `<p>Topup Rp${r.amount}</p><p class="text-sm text-gray-400">${new Date(r.created_at).toLocaleString()}</p><p class="text-sm ${statusColor} font-semibold">Status: ${r.status}</p>`;
-        list.appendChild(li);
-      });
-    }
-
-    window.onload = async function() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        document.getElementById("btnLogout").style.display = "block";
-        showSection("topup");
-        loadRiwayat();
-      } else showSection("login");
+    // Sidebar toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('-translate-x-full');
     }
   </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 font-sans text-gray-800 dark:text-gray-200 flex">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" 
+         class="w-64 bg-gray-900 text-white min-h-screen p-6 fixed top-0 left-0 transform transition-transform duration-300 -translate-x-full lg:translate-x-0 z-50">
+    <div>
+      <h1 class="text-xl font-bold mb-8">⚡ Oscar Hosting</h1>
+      <nav class="flex flex-col space-y-4">
+        <a href="#home" onclick="toggleSidebar()" class="hover:text-blue-400">🏠 Home</a>
+        <a href="#paket" onclick="toggleSidebar()" class="hover:text-blue-400">📦 Paket VPS</a>
+        <a href="#order" onclick="toggleSidebar()" class="hover:text-blue-400">🛒 Order</a>
+        <a href="#contact" onclick="toggleSidebar()" class="hover:text-blue-400">📞 Contact</a>
+      </nav>
+    </div>
+    <button onclick="toggleDarkMode()" class="mt-6 bg-gray-700 px-3 py-2 rounded-lg hover:bg-gray-600">
+      🌙 / ☀️
+    </button>
+  </aside>
+
+  <!-- Overlay (HP only) -->
+  <div id="overlay" 
+       class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 lg:hidden"
+       onclick="toggleSidebar()"></div>
+
+  <!-- Content -->
+  <div class="flex-1 w-full lg:ml-64">
+
+    <!-- Navbar (mobile) -->
+    <div class="lg:hidden flex justify-between items-center bg-gray-900 text-white px-4 py-3 shadow-md sticky top-0 z-40">
+      <button onclick="toggleSidebar()" class="focus:outline-none">
+        ☰
+      </button>
+      <span class="font-bold">Oscar Hosting</span>
+    </div>
+
+    <!-- Header -->
+    <header id="home" class="bg-blue-600 text-white text-center py-8 shadow-lg">
+      <h1 class="text-2xl font-bold">🚀 OSCAR HOSTING - VPS PREMIUM TERPERCAYA 🚀</h1>
+      <p class="mt-2">💼 Virtual Server Cepat, Aman, & Andal untuk Segala Kebutuhan Anda</p>
+      <p class="italic mt-1">✨ Solusi VPS modern dengan performa tinggi dan layanan profesional ✨</p>
+    </header>
+
+    <!-- Benefit -->
+    <section class="text-center py-6 px-4">
+      <p>✔️ Stabilitas Teruji | 🔐 Keamanan Maksimal | ⚙️ Performa Konsisten</p>
+      <p>🔧 Didukung tim teknis berpengalaman & respons cepat 24 jam</p>
+    </section>
+
+    <!-- Paket VPS -->
+    <main id="paket" class="max-w-6xl mx-auto px-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+      <!-- Paket Card (ulang sesuai kebutuhan) -->
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Basic Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp15.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 1 GB RAM</li>
+          <li>⚙️ 1 Core CPU</li>
+          <li>💾 25 GB SSD</li>
+          <li>🌐 1 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Basic%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Standard Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp25.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 2 GB RAM</li>
+          <li>⚙️ 1 Core CPU</li>
+          <li>💾 50 GB SSD</li>
+          <li>🌐 2 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Standard%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Pro Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp35.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 4 GB RAM</li>
+          <li>⚙️ 2 Cores CPU</li>
+          <li>💾 75 GB SSD</li>
+          <li>🌐 3 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Pro%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Elite Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp60.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 8 GB RAM</li>
+          <li>⚙️ 4 Cores CPU</li>
+          <li>💾 100 GB SSD</li>
+          <li>🌐 4 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Elite%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Ultra Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp75.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 16 GB RAM</li>
+          <li>⚙️ 4 Cores CPU</li>
+          <li>💾 150 GB SSD</li>
+          <li>🌐 5 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Ultra%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Premium Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp130.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 16 GB RAM</li>
+          <li>⚙️ 8 Cores CPU</li>
+          <li>💾 200 GB SSD</li>
+          <li>🌐 6 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Premium%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 text-center">
+        <h2 class="text-xl font-bold">Enterprise Plan</h2>
+        <p class="text-blue-600 font-semibold">Rp170.000 / bulan</p>
+        <ul class="mt-3 text-sm">
+          <li>💡 32 GB RAM</li>
+          <li>⚙️ 8 Cores CPU</li>
+          <li>💾 300 GB SSD</li>
+          <li>🌐 8 TB Bandwidth</li>
+        </ul>
+        <a href="https://wa.me/6283813417529?text=Order%20Enterprise%20Plan" target="_blank" 
+           class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+          🛒 Order
+        </a>
+      </div>
+
+    </main>
+
+    <!-- Order Section -->
+    <section id="order" class="text-center py-10 px-4">
+      <h2 class="text-2xl font-bold mb-4">🛒 ORDER VPS MUDAH</h2>
+      <p>Klik tombol di bawah untuk order langsung via WhatsApp</p>
+      <a href="https://wa.me/6283813417529?text=Halo%20saya%20ingin%20order%20VPS" 
+         class="mt-6 inline-block bg-green-600 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700" target="_blank">
+        📲 Order Sekarang
+      </a>
+    </section>
+
+    <!-- Contact -->
+    <footer id="contact" class="bg-gray-800 text-white text-center py-6 mt-10">
+      <p class="font-semibold">🔖 OSCAR STORE – Power Up Your Hosting!</p>
+      <p class="text-sm">📞 Contact: +62 838-1341-7529</p>
+      <p class="text-sm">© 2025 Oscar Hosting. All rights reserved.</p>
+    </footer>
+
+  </div>
+
 </body>
 </html>
